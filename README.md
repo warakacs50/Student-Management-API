@@ -19,7 +19,7 @@ This project demonstrates CRUD operations, RESTful API design, and database inte
 
 ## 🛠️ Tech Stack
 
-- Java 17  
+- Java 25  
 - Spring Boot  
 - Spring Data JPA (Java Persistence API)  
 - Hibernate (ORM – Object Relational Mapping)  
