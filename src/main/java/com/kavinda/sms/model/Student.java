@@ -21,8 +21,7 @@ public class Student{
     @Min(value = 1, message = "Age must be greater than 0")
     private int age;
 
-    public Student() {} //no argument constructors so it can create object by itself
-                        // and it is for the framework not for us
+    public Student() {}
 
     //this constructor is for us not for the framework
     public Student (String name , String email , int age ){
