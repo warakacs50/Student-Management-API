@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f0f2f5;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        input {
+            margin: 5px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<h1>Student Management</h1>
+
+<!-- Add Student Form -->
+<h2>Add Student</h2>
+<input type="text" id="name" placeholder="Name">
+<input type="email" id="email" placeholder="Email">
+<input type="number" id="age" placeholder="Age">
+<button onclick="addStudent()">Add</button>
+
+<!-- Student List -->
+<h2>All Students</h2>
+<table id="studentsTable">
+    <tr>
+        <th>ID</th><th>Name</th><th>Email</th><th>Age</th><th>Actions</th>
+    </tr>
+</table>
+
+<script>
+    const apiUrl = 'http://localhost:8080/api/students';
+
+    function getStudents() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const table = document.getElementById('studentsTable');
+                table.innerHTML = '<tr><th>ID</th><th>Name</th><th>Email</th><th>Age</th><th>Actions</th></tr>';
+                data.forEach(s => {
+                    const row = table.insertRow();
+                    row.insertCell(0).innerText = s.id;
+                    row.insertCell(1).innerText = s.name;
+                    row.insertCell(2).innerText = s.email;
+                    row.insertCell(3).innerText = s.age;
+                    row.insertCell(4).innerHTML = `
+                            <button onclick="deleteStudent(${s.id})">Delete</button>
+                            <button onclick="updateStudentPrompt(${s.id}, '${s.name}', '${s.email}', ${s.age})">Update</button>
+                        `;
+                });
+            });
+    }
+
+    function addStudent() {
+        const student = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            age: parseInt(document.getElementById('age').value)
+        };
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(student)
+        }).then(() => getStudents());
+    }
+
+    function deleteStudent(id) {
+        fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
+            .then(() => getStudents());
+    }
+
+    function updateStudentPrompt(id, name, email, age) {
+        const newName = prompt("Name:", name);
+        const newEmail = prompt("Email:", email);
+        const newAge = prompt("Age:", age);
+        if(newName && newEmail && newAge) {
+            const student = { name: newName, email: newEmail, age: parseInt(newAge) };
+            fetch(`${apiUrl}/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(student)
+            }).then(() => getStudents());
+        }
+    }
+
+    getStudents();
+</script>
+</body>
+</html>
