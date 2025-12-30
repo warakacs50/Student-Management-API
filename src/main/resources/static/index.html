@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <h1 class="mb-4 text-center">Student Management System</h1>
+
+    <!-- Add / Update Student Form -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title" id="formTitle">Add New Student</h5>
+            <input type="hidden" id="studentId">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" id="name" class="form-control" placeholder="Name">
+                </div>
+                <div class="col-md-4">
+                    <input type="email" id="email" class="form-control" placeholder="Email">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" id="age" class="form-control" placeholder="Age">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" onclick="saveStudent()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student List -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">All Students</h5>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="studentsTable">
+                    <thead class="table-primary">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Age</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS + Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const apiUrl = 'http://localhost:8080/api/students';
+
+    // Fetch and display all students
+    async function getStudents() {
+        try {
+            const res = await fetch(apiUrl);
+            const students = await res.json();
+            const tbody = document.querySelector('#studentsTable tbody');
+            tbody.innerHTML = '';
+
+            students.forEach(s => {
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = s.id;
+                row.insertCell(1).innerText = s.name;
+                row.insertCell(2).innerText = s.email;
+                row.insertCell(3).innerText = s.age;
+                row.insertCell(4).innerHTML = `
+                <button class="btn btn-sm btn-warning me-2" onclick="editStudent(${s.id}, '${s.name.replace(/'/g, "\\'")}', '${s.email.replace(/'/g, "\\'")}', ${s.age})">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteStudent(${s.id})">Delete</button>
+            `;
+            });
+        } catch (err) {
+            alert('Failed to fetch students');
+            console.error(err);
+        }
+    }
+
+    // Add or Update student
+    function saveStudent() {
+        const id = parseInt(document.getElementById('studentId').value);
+        const student = {
+            name: document.getElementById('name').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            age: parseInt(document.getElementById('age').value)
+        };
+
+        if (!student.name || !student.email || !student.age) {
+            return alert('Please fill all fields');
+        }
+
+        const url = id ? `${apiUrl}/${id}` : apiUrl;
+        const method = id ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(student)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed');
+                resetForm();
+                getStudents();
+            })
+            .catch(err => {
+                alert('Operation failed');
+                console.error(err);
+            });
+    }
+
+    // Delete student
+    function deleteStudent(id) {
+        fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
+            .then(res => {
+                if (!res.ok) throw new Error('Delete failed');
+                getStudents();
+            })
+            .catch(err => {
+                alert('Delete failed');
+                console.error(err);
+            });
+    }
+
+    // Populate form for editing
+    function editStudent(id, name, email, age) {
+        document.getElementById('studentId').value = id;
+        document.getElementById('name').value = name;
+        document.getElementById('email').value = email;
+        document.getElementById('age').value = age;
+        document.getElementById('formTitle').innerText = 'Update Student';
+    }
+
+    // Reset form
+    function resetForm() {
+        document.getElementById('studentId').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('age').value = '';
+        document.getElementById('formTitle').innerText = 'Add New Student';
+    }
+
+    // Initial load
+    getStudents();
+</script>
+</body>
+</html>

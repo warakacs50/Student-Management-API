@@ -35,7 +35,7 @@ public class Student{
     //Used by Hibernate to read and write entity data when mapping objects to database tables
     // hibernate = tool that concert object to db and db to to object
 
-    public void setID(Integer id){this.id = id;}
+    public void setId(Integer id){this.id = id;}
     public void setName(String name){
         this.name = name;
     }
@@ -46,7 +46,7 @@ public class Student{
         this.age = age;
     }
 
-    public Integer getID(){
+    public Integer getId(){
         return id;
     }
     public String getName(){

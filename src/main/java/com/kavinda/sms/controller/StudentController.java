@@ -7,10 +7,12 @@ import com.kavinda.sms.service.StudentService;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/students")
+@CrossOrigin(origins = "*")
 public class StudentController{
 
     private final StudentService studentService;
